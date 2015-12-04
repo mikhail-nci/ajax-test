@@ -4,6 +4,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var fs = require('fs');
 var js2xmlparser = require("js2xmlparser");
+var xslt = require('node_xslt');
 
 var router = express();
 var server = http.createServer(router);
@@ -22,6 +23,21 @@ router.get('/get/json', function(req, res) {
   res.setHeader('Content-Type', 'application/json');
   var obj = JSON.parse(fs.readFileSync('Countries.json', 'utf8'));
   res.end(JSON.stringify(obj));
+});
+
+// HTML produced by XSL Transformation
+router.get('/get/html', function(req, res) {
+  
+  // Read in XML and XSL files
+  var stylesheet = xslt.readXsltFile('Countries.xsl');
+  var doc = xslt.readXmlFile('Countries.xml');
+  
+  // Apply transformation
+  var result = xslt.transform(stylesheet, doc, []);
+  
+  // Render the result
+  res.send(result);
+  
 });
 
 // POST request to add to JSON & XML files
